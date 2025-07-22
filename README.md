@@ -67,150 +67,27 @@ Link to the game online: https://berhanewhe5.github.io/JavaScript-Top-Down-Shoot
 2. Zombie sprite: https://opengameart.org/content/animated-top-down-zombie
 3. Player sprite: https://opengameart.org/content/animated-top-down-survivor-player
 4. Grass sprite: https://opengameart.org/content/grass-texture-pack
-
-5. ERROR in ./src/CompareEmployees.tsx:15:36
-TS2365: Operator '+' cannot be applied to types '{}' and 'number'.
-    13 |       emp.events?.forEach((event) => {
-    14 |         if (event.rsvped) {
-  > 15 |           eventMap.set(event.name, (eventMap.get(event.name) || 0) + 1);
-       |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    16 |         }
-    17 |       });
-    18 |     });
-
-ERROR in ./src/CompareEmployees.tsx:20:18
-TS2345: Argument of type '{ name: unknown; count: unknown; }[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
-  Type '{ name: unknown; count: unknown; }[]' is not assignable to type 'never[]'.
-    Type '{ name: unknown; count: unknown; }' is not assignable to type 'never'.
-    18 |     });
-    19 |     const chartData = Array.from(eventMap.entries()).map(([name, count]) => ({ name, count }));
-  > 20 |     setTopEvents(chartData);
-       |                  ^^^^^^^^^
-    21 |   }, []);
-    22 |
-    23 |   const findCommonalities = (id) => {
-
-ERROR in ./src/CompareEmployees.tsx:23:30
-TS7006: Parameter 'id' implicitly has an 'any' type.
-    21 |   }, []);
-    22 |
-  > 23 |   const findCommonalities = (id) => {
-       |                              ^^
-    24 |     const person = employeesData.find((e) => e.id === parseInt(id));
-    25 |     if (!person) return;
-    26 |
-
-ERROR in ./src/CompareEmployees.tsx:40:22
-TS2345: Argument of type '{ name: string; shared: string[]; }[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
-  Type '{ name: string; shared: string[]; }[]' is not assignable to type 'never[]'.
-    Type '{ name: string; shared: string[]; }' is not assignable to type 'never'.
-    38 |       .filter((entry) => entry.shared.length > 0);
-    39 |
-  > 40 |     setCommonalities(results);
+ERROR in ./src/CompareEmployees.tsx:47:22
+TS2345: Argument of type '{ name: string; shared: string[]; }[]' is not assignable to parameter of type 'SetStateAction<Commonality[]>'.
+  Type '{ name: string; shared: string[]; }[]' is not assignable to type 'Commonality[]'.
+    Property 'count' is missing in type '{ name: string; shared: string[]; }' but required in type 'Commonality'.
+    45 |       .filter((entry) => entry.shared.length > 0);
+    46 |
+  > 47 |     setCommonalities(results);
        |                      ^^^^^^^
-    41 |   };
-    42 |
-    43 |   return (
+    48 |   };
+    49 |
+    50 |   return (
 
-ERROR in ./src/CompareEmployees.tsx:47:8
-TS2304: Cannot find name 'Card'.
-    45 |       <h1 className="text-2xl font-bold text-[#003F5F]">JPMorgan Chase Employee Dashboard</h1>
-    46 |
-  > 47 |       <Card>
-       |        ^^^^
-    48 |         <CardContent className="p-4">
-    49 |           <h2 className="text-xl font-semibold mb-2">Top RSVPed Events</h2>
-    50 |           <ResponsiveContainer width="100%" height={300}>
-
-ERROR in ./src/CompareEmployees.tsx:48:10
-TS2304: Cannot find name 'CardContent'.
-    46 |
-    47 |       <Card>
-  > 48 |         <CardContent className="p-4">
-       |          ^^^^^^^^^^^
-    49 |           <h2 className="text-xl font-semibold mb-2">Top RSVPed Events</h2>
-    50 |           <ResponsiveContainer width="100%" height={300}>
-    51 |             <BarChart data={topEvents}>
-
-ERROR in ./src/CompareEmployees.tsx:58:11
-TS2304: Cannot find name 'CardContent'.
-    56 |             </BarChart>
-    57 |           </ResponsiveContainer>
-  > 58 |         </CardContent>
-       |           ^^^^^^^^^^^
-    59 |       </Card>
-    60 |
-    61 |       <Card>
-
-ERROR in ./src/CompareEmployees.tsx:59:9
-TS2304: Cannot find name 'Card'.
-    57 |           </ResponsiveContainer>
-    58 |         </CardContent>
-  > 59 |       </Card>
-       |         ^^^^
-    60 |
-    61 |       <Card>
-    62 |         <CardContent className="p-4">
-
-ERROR in ./src/CompareEmployees.tsx:61:8
-TS2304: Cannot find name 'Card'.
-    59 |       </Card>
-    60 |
-  > 61 |       <Card>
-       |        ^^^^
-    62 |         <CardContent className="p-4">
-    63 |           <h2 className="text-xl font-semibold mb-2">Find Commonalities</h2>
-    64 |           <select
-
-ERROR in ./src/CompareEmployees.tsx:62:10
-TS2304: Cannot find name 'CardContent'.
-    60 |
-    61 |       <Card>
-  > 62 |         <CardContent className="p-4">
-       |          ^^^^^^^^^^^
-    63 |           <h2 className="text-xl font-semibold mb-2">Find Commonalities</h2>
-    64 |           <select
-    65 |             className="border p-2 rounded w-full mb-4"
-
-ERROR in ./src/CompareEmployees.tsx:84:30
-TS2339: Property 'name' does not exist on type 'never'.
-    82 |               {commonalities.map((c, index) => (
-    83 |                 <li key={index}>
-  > 84 |                   <strong>{c.name}:</strong> {c.shared.join(', ')}
-       |                              ^^^^
-    85 |                 </li>
-    86 |               ))}
-    87 |             </ul>
-
-ERROR in ./src/CompareEmployees.tsx:84:49
-TS2339: Property 'shared' does not exist on type 'never'.
-    82 |               {commonalities.map((c, index) => (
-    83 |                 <li key={index}>
-  > 84 |                   <strong>{c.name}:</strong> {c.shared.join(', ')}
+ERROR in ./src/CompareEmployees.tsx:91:49
+TS2339: Property 'shared' does not exist on type 'Commonality'.
+    89 |               {commonalities.map((c, index) => (
+    90 |                 <li key={index}>
+  > 91 |                   <strong>{c.name}:</strong> {c.shared.join(', ')}
        |                                                 ^^^^^^
-    85 |                 </li>
-    86 |               ))}
-    87 |             </ul>
+    92 |                 </li>
+    93 |               ))}
+    94 |             </ul>
 
-ERROR in ./src/CompareEmployees.tsx:89:11
-TS2304: Cannot find name 'CardContent'.
-    87 |             </ul>
-    88 |           )}
-  > 89 |         </CardContent>
-       |           ^^^^^^^^^^^
-    90 |       </Card>
-    91 |     </div>
-    92 |   );
-
-ERROR in ./src/CompareEmployees.tsx:90:9
-TS2304: Cannot find name 'Card'.
-    88 |           )}
-    89 |         </CardContent>
-  > 90 |       </Card>
-       |         ^^^^
-    91 |     </div>
-    92 |   );
-    93 | }
-
-Found 14 errors in 13997 ms.
+Found 2 errors in 906 ms.
 
