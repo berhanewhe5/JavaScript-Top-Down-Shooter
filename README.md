@@ -67,27 +67,188 @@ Link to the game online: https://berhanewhe5.github.io/JavaScript-Top-Down-Shoot
 2. Zombie sprite: https://opengameart.org/content/animated-top-down-zombie
 3. Player sprite: https://opengameart.org/content/animated-top-down-survivor-player
 4. Grass sprite: https://opengameart.org/content/grass-texture-pack
-ERROR in ./src/CompareEmployees.tsx:47:22
-TS2345: Argument of type '{ name: string; shared: string[]; }[]' is not assignable to parameter of type 'SetStateAction<Commonality[]>'.
-  Type '{ name: string; shared: string[]; }[]' is not assignable to type 'Commonality[]'.
-    Property 'count' is missing in type '{ name: string; shared: string[]; }' but required in type 'Commonality'.
-    45 |       .filter((entry) => entry.shared.length > 0);
-    46 |
-  > 47 |     setCommonalities(results);
-       |                      ^^^^^^^
-    48 |   };
-    49 |
-    50 |   return (
+import logoSvg from './logo.svg';
+import styles from './App.module.scss';
+import { useEffect, useState } from 'react';
+import myUsers from './employees.json';
+import 'bootstrap/dist/css/bootstrap.css';
+import '@mds/react';
+import { MdsSearchBox } from "@mds/react";
+import Fuse from 'fuse.js';
+type User = typeof myUsers[number];
+import CompareEmployees from './CompareEmployees';
 
-ERROR in ./src/CompareEmployees.tsx:91:49
-TS2339: Property 'shared' does not exist on type 'Commonality'.
-    89 |               {commonalities.map((c, index) => (
-    90 |                 <li key={index}>
-  > 91 |                   <strong>{c.name}:</strong> {c.shared.join(', ')}
-       |                                                 ^^^^^^
-    92 |                 </li>
-    93 |               ))}
-    94 |             </ul>
+function Header({ searchItem, onSearchChange }: {
+  searchItem: string;
+  onSearchChange: (value: string) => void;
+}) {
+  const handleSearchChange = (event: any) => {
+    const searchValue = event.target?.value || event.value || '';
+    onSearchChange(searchValue);
+  };
+  return (
+    <header>
+      <div className={styles["header-logo"]}>
+        <img src={logoSvg} className={styles.appLogo} onClick={() => window.location.reload()} alt="logo" />
+        <input
+          value={searchItem}
+          onChange={handleSearchChange}
+          placeholder="Search by name, SID, or title"
+        />
+      </div>
+      <h1 className={styles.appHeading} onClick={() => window.location.reload()}>
+        JPMorganChase
+      </h1>
+    </header>
+  );
+}
 
-Found 2 errors in 906 ms.
+function Dashboard() {
+  const totalEmployees = myUsers.length;
+  const averageExperience = myUsers.reduce((sum, user) => sum + user.yearsOfExperience, 0) / totalEmployees;
 
+  return (
+    <div className="dashboard">
+      <p>Total Employees: {totalEmployees}</p>
+      {/* Add more statistics as needed */}
+    </div>
+  );
+}
+
+export default function MainSearchApp() {
+  const [showCompare, setShowCompare] = useState(false);
+  const [searchItem, setSearchItem] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState<User[]>(myUsers);
+  const [showResult, setShowResult] = useState(false);
+  const [currentId, setCurrentId] = useState(0);
+
+  // Configure Fuse.js options
+  const fuseOptions = {
+    keys: ['name', 'sid', 'title'],
+    threshold: 0.3, // Adjust this value to control the fuzziness
+  };
+
+  const fuse = new Fuse(myUsers, fuseOptions);
+
+  useEffect(() => {
+    if (searchItem) {
+      const results = fuse.search(searchItem);
+      setFilteredUsers(results.map(result => result.item));
+    } else {
+      setFilteredUsers(myUsers);
+    }
+  }, [searchItem]);
+
+  const handleInputChange = (value: string) => {
+    setSearchItem(value);
+    setShowResult(false);
+  };
+
+  const displayResult = (userId: number) => {
+    setCurrentId(userId - 1);
+    setShowResult(true);
+  };
+
+  const displaySearch = () => setShowResult(false);
+
+  const user = myUsers[currentId];
+  const manager = user?.managerId ? myUsers[user.managerId - 1] : null;
+
+  return (
+    <div className={styles.appContainer}>
+      <Header searchItem={searchItem} onSearchChange={handleInputChange} />
+      {/*<Dashboard />*/}
+
+      {showResult ? (
+        <div className="employee-profile py-4">
+          <div className="container">
+            <span className={styles["back-btn"]} onClick={displaySearch}>← Back</span>
+            <div className="row mt-3">
+              <div className="col-lg-4 mb-4">
+                <div className="card shadow-sm">
+                  <div className="card-header text-center">
+                    <img src={user.image} alt={user.name} className={`profile_img rounded-circle`} />
+                    <h3>{user.name} ({user.pronouns})</h3>
+                  </div>
+                  <div className="card-body">
+                    <p><strong>Title:</strong> {user.title}</p>
+                    <p><strong>SID:</strong> {user.sid}</p>
+                    <p><strong>Manager:</strong> {manager
+                      ? <span className={styles.appLink} onClick={() => displayResult(manager.id)}>{manager.name}</span>
+                      : 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-lg-8">
+                {/* General Info Card */}
+                <div className="card shadow-sm mb-4">
+                  <div className="card-header"><h4>General Info</h4></div>
+                  <div className="card-body">
+                    <table className="table table-bordered">
+                      <tbody>
+                      <tr><th>Email</th><td>{user.email}</td></tr>
+                      <tr><th>Cellphone</th><td>{user.cellPhone}</td></tr>
+                      <tr><th>Company</th><td>{user.company}</td></tr>
+                      <tr><th>LOB</th><td>{user.lineOfBusiness}</td></tr>
+                      <tr><th>Address</th><td>{user.address}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Career Profile */}
+                <div className="card shadow-sm mb-4">
+                  <div className="card-header"><h4>Career Profile</h4></div>
+                  <div className="card-body">
+                    <p>{user.story}</p>
+                    <table className="table table-bordered">
+                      <tbody>
+                      <tr><th>Experience</th><td>{user.yearsOfExperience}</td></tr>
+                      <tr><th>University</th><td>{user.university}</td></tr>
+                      <tr><th>Major</th><td>{user.major}</td></tr>
+                      <tr><th>LinkedIn</th><td><a href={user.linkedin} target="_blank">{user.linkedin}</a></td></tr>
+                      <tr><th>Hobbies</th><td>{user.hobbies.join(', ')}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Past Projects */}
+                <div className="card shadow-sm">
+                  <div className="card-header"><h4>Past Projects</h4></div>
+                  <div className="card-body">
+                    <ul>{user.pastProjects.map((p, i) => <li key={i}>{p}</li>)}</ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="container mt-4">
+          {searchItem ? (
+            filteredUsers.length ? (
+              <div className="row">
+                {filteredUsers.map(u => (
+                  <div key={u.id} className="col-md-4 mb-3">
+                    <div className="card shadow-sm" onClick={() => displayResult(u.id)} style={{cursor:'pointer'}}>
+                      <div className="card-body text-center">
+                        <img src={u.image} alt={u.name} className="rounded-circle mb-2" width="60" height="60" />
+                        <h5 className="card-title">{u.name}</h5>
+                        <p className="card-text">{u.title}</p>
+                        <small>{u.sid}</small>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : <p>No results for "{searchItem}".</p>
+          ) : (
+            <p>Start typing to search employees.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
