@@ -72,49 +72,45 @@ import styles from './App.module.scss';
 import { useEffect, useState } from 'react';
 import myUsers from './employees.json';
 import 'bootstrap/dist/css/bootstrap.css';
+import '@mds/react';
+import { MdsSearchBox } from "@mds/react";
 import Fuse from 'fuse.js';
+type User = typeof myUsers[number];
 import CompareEmployees from './CompareEmployees';
 
-type User = typeof myUsers[number];
-
-function Header({
-  searchItem,
-  onSearchChange,
-  onToggleCompare,
-  showCompare,
-}: {
+function Header({ searchItem, onSearchChange }: {
   searchItem: string;
   onSearchChange: (value: string) => void;
-  onToggleCompare: () => void;
-  showCompare: boolean;
 }) {
+  const handleSearchChange = (event: any) => {
+    const searchValue = event.target?.value || event.value || '';
+    onSearchChange(searchValue);
+  };
   return (
-    <div className={styles["header-logo"]}>
-      <img
-        src={logoSvg}
-        className={styles.appLogo}
-        onClick={() => window.location.reload()}
-        alt="logo"
-      />
-      <h1
-        className={styles.appHeading}
-        onClick={() => window.location.reload()}
-      >
+    <header>
+      <div className={styles["header-logo"]}>
+        <img src={logoSvg} className={styles.appLogo} onClick={() => window.location.reload()} alt="logo" />
+        <input
+          value={searchItem}
+          onChange={handleSearchChange}
+          placeholder="Search by name, SID, or title"
+        />
+      </div>
+      <h1 className={styles.appHeading} onClick={() => window.location.reload()}>
         JPMorganChase
       </h1>
+    </header>
+  );
+}
 
-      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "10px" }}>
-        <input
-          type="text"
-          placeholder="Search employees..."
-          value={searchItem}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="form-control"
-        />
-        <button onClick={onToggleCompare} className="btn btn-primary">
-          {showCompare ? "Hide Compare" : "Compare Employees"}
-        </button>
-      </div>
+function Dashboard() {
+  const totalEmployees = myUsers.length;
+  const averageExperience = myUsers.reduce((sum, user) => sum + user.yearsOfExperience, 0) / totalEmployees;
+
+  return (
+    <div className="dashboard">
+      <p>Total Employees: {totalEmployees}</p>
+      {/* Add more statistics as needed */}
     </div>
   );
 }
@@ -126,10 +122,13 @@ export default function MainSearchApp() {
   const [showResult, setShowResult] = useState(false);
   const [currentId, setCurrentId] = useState(0);
 
-  const fuse = new Fuse(myUsers, {
+  // Configure Fuse.js options
+  const fuseOptions = {
     keys: ['name', 'sid', 'title'],
-    threshold: 0.3,
-  });
+    threshold: 0.3, // Adjust this value to control the fuzziness
+  };
+
+  const fuse = new Fuse(myUsers, fuseOptions);
 
   useEffect(() => {
     if (searchItem) {
@@ -139,6 +138,11 @@ export default function MainSearchApp() {
       setFilteredUsers(myUsers);
     }
   }, [searchItem]);
+
+  const handleInputChange = (value: string) => {
+    setSearchItem(value);
+    setShowResult(false);
+  };
 
   const displayResult = (userId: number) => {
     setCurrentId(userId - 1);
@@ -151,19 +155,75 @@ export default function MainSearchApp() {
   const manager = user?.managerId ? myUsers[user.managerId - 1] : null;
 
   return (
-    <div>
-      <Header
-        searchItem={searchItem}
-        onSearchChange={setSearchItem}
-        onToggleCompare={() => setShowCompare(!showCompare)}
-        showCompare={showCompare}
-      />
-
-      {showCompare && <CompareEmployees />}
+    <div className={styles.appContainer}>
+      <Header searchItem={searchItem} onSearchChange={handleInputChange} />
+      {/*<Dashboard />*/}
 
       {showResult ? (
         <div className="employee-profile py-4">
-          {/* Your unchanged profile rendering code goes here */}
+          <div className="container">
+            <span className={styles["back-btn"]} onClick={displaySearch}>← Back</span>
+            <div className="row mt-3">
+              <div className="col-lg-4 mb-4">
+                <div className="card shadow-sm">
+                  <div className="card-header text-center">
+                    <img src={user.image} alt={user.name} className={`profile_img rounded-circle`} />
+                    <h3>{user.name} ({user.pronouns})</h3>
+                  </div>
+                  <div className="card-body">
+                    <p><strong>Title:</strong> {user.title}</p>
+                    <p><strong>SID:</strong> {user.sid}</p>
+                    <p><strong>Manager:</strong> {manager
+                      ? <span className={styles.appLink} onClick={() => displayResult(manager.id)}>{manager.name}</span>
+                      : 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-lg-8">
+                {/* General Info Card */}
+                <div className="card shadow-sm mb-4">
+                  <div className="card-header"><h4>General Info</h4></div>
+                  <div className="card-body">
+                    <table className="table table-bordered">
+                      <tbody>
+                      <tr><th>Email</th><td>{user.email}</td></tr>
+                      <tr><th>Cellphone</th><td>{user.cellPhone}</td></tr>
+                      <tr><th>Company</th><td>{user.company}</td></tr>
+                      <tr><th>LOB</th><td>{user.lineOfBusiness}</td></tr>
+                      <tr><th>Address</th><td>{user.address}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Career Profile */}
+                <div className="card shadow-sm mb-4">
+                  <div className="card-header"><h4>Career Profile</h4></div>
+                  <div className="card-body">
+                    <p>{user.story}</p>
+                    <table className="table table-bordered">
+                      <tbody>
+                      <tr><th>Experience</th><td>{user.yearsOfExperience}</td></tr>
+                      <tr><th>University</th><td>{user.university}</td></tr>
+                      <tr><th>Major</th><td>{user.major}</td></tr>
+                      <tr><th>LinkedIn</th><td><a href={user.linkedin} target="_blank">{user.linkedin}</a></td></tr>
+                      <tr><th>Hobbies</th><td>{user.hobbies.join(', ')}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Past Projects */}
+                <div className="card shadow-sm">
+                  <div className="card-header"><h4>Past Projects</h4></div>
+                  <div className="card-body">
+                    <ul>{user.pastProjects.map((p, i) => <li key={i}>{p}</li>)}</ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="container mt-4">
@@ -172,19 +232,9 @@ export default function MainSearchApp() {
               <div className="row">
                 {filteredUsers.map(u => (
                   <div key={u.id} className="col-md-4 mb-3">
-                    <div
-                      className="card shadow-sm"
-                      onClick={() => displayResult(u.id)}
-                      style={{ cursor: 'pointer' }}
-                    >
+                    <div className="card shadow-sm" onClick={() => displayResult(u.id)} style={{cursor:'pointer'}}>
                       <div className="card-body text-center">
-                        <img
-                          src={u.image}
-                          alt={u.name}
-                          className="rounded-circle mb-2"
-                          width="60"
-                          height="60"
-                        />
+                        <img src={u.image} alt={u.name} className="rounded-circle mb-2" width="60" height="60" />
                         <h5 className="card-title">{u.name}</h5>
                         <p className="card-text">{u.title}</p>
                         <small>{u.sid}</small>
@@ -193,9 +243,7 @@ export default function MainSearchApp() {
                   </div>
                 ))}
               </div>
-            ) : (
-              <p>No results for "{searchItem}".</p>
-            )
+            ) : <p>No results for "{searchItem}".</p>
           ) : (
             <p>Start typing to search employees.</p>
           )}
